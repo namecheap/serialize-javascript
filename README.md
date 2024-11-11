@@ -1,7 +1,10 @@
 Serialize JavaScript
 ====================
-Serialize JavaScript to a _superset_ of JSON that includes regular expressions, dates and functions.
-This library is a fork of the [serialize-javacript] library that addresses browser compatibility by using the native crypto module.
+Serialize JavaScript to a superset of JSON that includes regular expressions, dates, and functions.
+
+This library is a fork of the [serialize-javascript] library that addresses browser compatibility by using the native crypto module. In the original library, generating a randomUID depends on the randombytes library, which in turn depends on the safe-buffer library that requires the buffer package to be present. However, since Webpack 5 stopped polyfilling Node.js built-in modules, this package now needs to be installed manually.
+
+This results in a 57 KB increase in bundle size, which seems excessive compared to the built-in crypto implementation widely available in modern browsers and the Node.js runtime. This motivated an update to the implementation to use the built-in crypto module.
 
 ## Overview
 You're probably wondering: **What about `JSON.stringify()`!?** We've found that sometimes we need to serialize JavaScript **functions**, **regexps**, **dates**, **sets** or **maps**. A great example is a web app that uses client-side URL routing where the route definitions are regexps that need to be shared from the server to the client. But this module is also great for communicating between node processes.
