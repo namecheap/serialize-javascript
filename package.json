@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "description": "Serialize JavaScript to a superset of JSON that includes regular expressions and functions.",
   "main": "index.js",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "benchmark": "node -v && node test/benchmark/serialize.js",
     "test": "nyc mocha './{,!(node_modules)/**}/*.spec.js' --forbid-only --forbid-pending --reporter=\"mochawesome\" --reporter-options=\"reportDir=./test-results/mocha/,reportFilename=index.html\"",
