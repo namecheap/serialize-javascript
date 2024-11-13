@@ -1,12 +1,23 @@
-/* global describe, it, beforeEach */
-'use strict';
+import { expect } from 'chai';
+import { PlaceholderSerializer } from '../../../src/Serializer/PlaceholderSerializer';
 
-var serialize = require('../../'),
-    expect    = require('chai').expect;
+describe('serialize(obj)', function () {
+    let serialize;
 
-describe('serialize( obj )', function () {
+    before(() => {
+        const uuid = '00000000000000000000000000000000'
+        const serializer = new PlaceholderSerializer(uuid);
+        serialize = serializer.serialize.bind(serializer);
+    });
+
     it('should be a function', function () {
         expect(serialize).to.be.a('function');
+    });
+
+    describe('non-placeholderable types', function () {
+        it('should serialize to a string', function () {
+            expect(serialize(new ArrayBuffer(3))).to.be.a('string').equal('{}');
+        });
     });
 
     describe('undefined', function () {
@@ -69,7 +80,7 @@ describe('serialize( obj )', function () {
     describe('functions', function () {
         it('should serialize annonymous functions', function () {
             var fn = function () {};
-            expect(serialize(fn)).to.be.a('string').equal('function () {}');
+            expect(serialize(fn)).to.be.a('string').equal('function () { }');
         });
 
         it('should deserialize annonymous functions', function () {
@@ -79,7 +90,7 @@ describe('serialize( obj )', function () {
 
         it('should serialize named functions', function () {
             function fn() {}
-            expect(serialize(fn)).to.be.a('string').equal('function fn() {}');
+            expect(serialize(fn)).to.be.a('string').equal('function fn() { }');
         });
 
         it('should deserialize named functions', function () {
@@ -89,12 +100,12 @@ describe('serialize( obj )', function () {
         });
 
         it('should serialize functions with arguments', function () {
-            function fn(arg1, arg2) {}
-            expect(serialize(fn)).to.equal('function fn(arg1, arg2) {}');
+            function fn(arg1, arg2) {};
+            expect(serialize(fn)).to.equal('function fn(arg1, arg2) { }');
         });
 
         it('should deserialize functions with arguments', function () {
-            var fn; eval('fn = ' + serialize(function (arg1, arg2) {}));
+            var fn; eval('fn = ' + serialize(function (arg1, arg2) { }));
             expect(fn).to.be.a('function');
             expect(fn.length).to.equal(2);
         });
@@ -134,8 +145,8 @@ describe('serialize( obj )', function () {
         });
 
         it('should serialize functions that contain dates', function () {
-           function fn(arg1) {return new Date('2016-04-28T22:02:17.156Z')};
-            expect(serialize(fn)).to.be.a('string').equal('function fn(arg1) {return new Date(\'2016-04-28T22:02:17.156Z\')}');
+           function fn(arg1) { return new Date('2016-04-28T22:02:17.156Z'); };
+            expect(serialize(fn)).to.be.a('string').equal('function fn(arg1) { return new Date(\'2016-04-28T22:02:17.156Z\'); }');
         });
 
         it('should deserialize functions that contain dates', function () {
@@ -145,8 +156,8 @@ describe('serialize( obj )', function () {
         });
 
         it('should serialize functions that return other functions', function () {
-            function fn() {return function(arg1) {return arg1 + 5}};
-            expect(serialize(fn)).to.be.a('string').equal('function fn() {return function(arg1) {return arg1 + 5}}');
+            function fn() { return function(arg1) { return arg1 + 5; }; };
+            expect(serialize(fn)).to.be.a('string').equal('function fn() { return function (arg1) { return arg1 + 5; }; }');
         });
 
         it('should deserialize functions that return other functions', function () {
@@ -157,9 +168,10 @@ describe('serialize( obj )', function () {
     });
 
     describe('arrow-functions', function () {
+
         it('should serialize arrow functions', function () {
             var fn = () => {};
-            expect(serialize(fn)).to.be.a('string').equal('() => {}');
+            expect(serialize(fn)).to.be.a('string').equal('() => { }');
         });
 
         it('should deserialize arrow functions', function () {
@@ -169,8 +181,8 @@ describe('serialize( obj )', function () {
         });
 
         it('should serialize arrow functions with one argument', function () {
-            var fn = arg1 => {}
-            expect(serialize(fn)).to.be.a('string').equal('arg1 => {}');
+            var fn = arg1 => {};
+            expect(serialize(fn)).to.be.a('string').equal('arg1 => { }');
         });
 
         it('should deserialize arrow functions with one argument', function () {
@@ -181,7 +193,7 @@ describe('serialize( obj )', function () {
 
         it('should serialize arrow functions with multiple arguments', function () {
             var fn = (arg1, arg2) => {}
-            expect(serialize(fn)).to.equal('(arg1, arg2) => {}');
+            expect(serialize(fn)).to.equal('(arg1, arg2) => { }');
         });
 
         it('should deserialize arrow functions with multiple arguments', function () {
@@ -213,7 +225,7 @@ describe('serialize( obj )', function () {
 
         it('should deserialize enhanced literal objects', function () {
             var obj;
-            eval('obj = ' + serialize({                foo: () => { return true; },
+            eval('obj = ' + serialize({
                 foo: () => { return true; },
                 bar: arg1 => { return true; },
                 baz: (arg1, arg2) => { return true; }
@@ -226,8 +238,8 @@ describe('serialize( obj )', function () {
 
         it('should serialize arrow functions with added properties', function () {
             var fn = () => {};
-            fn.property1 = 'a string'
-            expect(serialize(fn)).to.be.a('string').equal('() => {}');
+            (fn as any).property1 = 'a string'
+            expect(serialize(fn)).to.be.a('string').equal('() => { }');
         });
 
         it('should deserialize arrow functions with added properties', function () {
@@ -237,8 +249,8 @@ describe('serialize( obj )', function () {
         });
 
          it('should serialize arrow functions that return other functions', function () {
-            var fn = arg1 => { return arg2 => arg1 + arg2 };
-            expect(serialize(fn)).to.be.a('string').equal('arg1 => { return arg2 => arg1 + arg2 }');
+            var fn = arg1 => { return arg2 => arg1 + arg2; };
+            expect(serialize(fn)).to.be.a('string').equal('arg1 => { return arg2 => arg1 + arg2; }');
           });
 
         it('should deserialize arrow functions that return other functions', function () {
@@ -333,11 +345,12 @@ describe('serialize( obj )', function () {
     describe('maps', function () {
         it('should serialize maps', function () {
             var regexKey = /.*/;
+
             var m = new Map([
                 ['a', 123],
                 [regexKey, 456],
                 [Infinity, 789]
-            ]);
+            ] as any);
             expect(serialize(m)).to.be.a('string').equal('new Map([["a",123],[new RegExp(".*", ""),456],[Infinity,789]])');
             expect(serialize({t: [m]})).to.be.a('string').equal('{"t":[new Map([["a",123],[new RegExp(".*", ""),456],[Infinity,789]])]}');
         });
@@ -347,7 +360,7 @@ describe('serialize( obj )', function () {
                 ['a', 123],
                 [null, 456],
                 [Infinity, 789]
-            ])));
+            ] as any)));
             expect(m).to.be.a('Map');
             expect(m.get(null)).to.equal(456);
         });
@@ -383,7 +396,7 @@ describe('serialize( obj )', function () {
             var a = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
             delete a[0];
             a.length = 3;
-            a[5] = "wat"
+            (a as any)[5] = "wat"
             expect(serialize(a)).to.be.a('string').equal('Array.prototype.slice.call({"1":2,"2":3,"5":"wat","length":6})');
             expect(serialize({t: [a]})).to.be.a('string').equal('{"t":[Array.prototype.slice.call({"1":2,"2":3,"5":"wat","length":6})]}');
         });
@@ -392,7 +405,7 @@ describe('serialize( obj )', function () {
             var a = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
             delete a[0];
             a.length = 3;
-            a[5] = "wat"
+            (a as any)[5] = "wat"
             var b = eval(serialize(a));
             expect(b).to.be.a('Array').deep.equal([ , 2, 3, , , 'wat' ]);
         });
@@ -557,7 +570,7 @@ describe('serialize( obj )', function () {
     describe('placeholders', function() {
         it('should not be replaced within string literals', function () {
             // Since we made the UID deterministic this should always be the placeholder
-            var fakePlaceholder = '"@__R-0000000000000000-0__@';
+            var fakePlaceholder = '"@__R-00000000000000000000000000000000-0__@';
             var serialized = serialize({bar: /1/i, foo: fakePlaceholder}, {uid: 'foo'});
             var obj = eval('(' + serialized + ')');
             expect(obj).to.be.a('Object');

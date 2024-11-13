@@ -10,11 +10,15 @@ module.exports = {
     branches: [85, 100],
     statements: [85, 100],
   },
-  include: ['**/*.js'],
-  exclude: ['node_modules', 'test-results', 'test/*',  '**/*.spec.js', '*.config.js'],
+  include: ['**/*.ts'],
+  exclude: ['node_modules', 'test-results', 'test/*', "**/*.d.ts", '**/*.spec.ts', '*.config.js'],
   reporter: ['text', 'html', 'cobertura'],
   cache: false,
   all: true,
   'temp-directory': './test-results/coverage/.tmp',
   'report-dir': './test-results/coverage',
+  require: [
+    'ts-node/register',
+    'source-map-support/register'
+  ],
 };

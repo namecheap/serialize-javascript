@@ -1,0 +1,8 @@
+{
+    "check-leaks": true,
+    "use_strict": true,
+    "require": "ts-node/register",
+    "recursive": true,
+    "extension": ["ts"],
+    "spec": "test/**/*.ts"
+}

@@ -1,6 +1,7 @@
 artifacts/
 coverage/
 test/
+src/
 .gitignore
 .npmignore
 .nyc_output
