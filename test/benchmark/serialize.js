@@ -1,7 +1,7 @@
 'use strict';
 
 var Benchmark = require('benchmark');
-var serialize = require('../../');
+var { serialize } = require('../../lib/');
 
 var suiteConfig = {
     onStart: function (e) {
