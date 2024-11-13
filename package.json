@@ -2,8 +2,9 @@
   "name": "@namecheap/serialize-javascript",
   "version": "0.0.0",
   "description": "Serialize JavaScript to a superset of JSON that includes regular expressions and functions.",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "main": "./lib/index.js",
+  "browser": "./lib/browser.js",
+  "types": "./lib/index.d.ts",
   "publishConfig": {
     "access": "public"
   },
@@ -41,7 +42,6 @@
     "mocha": "^10.7.3",
     "mochawesome": "^7.1.3",
     "nyc": "^17.1.0",
-    "proxyquire": "^2.1.3",
     "semantic-release": "^24.1.3",
     "sinon": "^19.0.2",
     "source-map-support": "^0.5.21",

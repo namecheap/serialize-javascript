@@ -1,16 +1,27 @@
 import sinon from 'sinon';
 import { expect } from 'chai';
-import crypto from 'crypto';
 import * as generateUUIDModule from '../../src/generateUUID';
 import * as placeholderSerializerModule from '../../src/Serializer/PlaceholderSerializer';
 
-describe('Default entrypoint', () => {
+describe('Browser entrypoint', () => {
     let serializeStub: sinon.SinonStub;
     let generateUUIDStub: sinon.SinonStub;
     let placeholderSerializerSpy: sinon.SinonSpy;
     let serializeFn;
+    let cryptoMock = {};
 
     before(() => {
+        // Mock the `window` and `window.crypto` if they are not defined
+        if (typeof global.window === 'undefined') {
+            (global as any).window = {};
+        }
+
+        Object.defineProperty(global.window, 'crypto', {
+            value: cryptoMock,
+            configurable: true,
+            writable: true,
+        });
+
         generateUUIDStub = sinon.stub(generateUUIDModule, 'generateUUID');
         generateUUIDStub.returns('00000000000000000000000000000');
 
@@ -18,17 +29,23 @@ describe('Default entrypoint', () => {
 
         serializeStub = sinon.stub(placeholderSerializerModule.PlaceholderSerializer.prototype, 'serialize').returns('serialized-data');
 
-        const { serialize } = require('../../src/index');
+        const { serialize } = require('../../src/browser');
         serializeFn = serialize;
     });
 
     after(() => {
+        Object.defineProperty(global.window, 'crypto', {
+            value: undefined,
+            configurable: true,
+            writable: true,
+        });
+
         sinon.restore();
     });
 
-    it('should invoke genereUUID function with crypto', () => {
+    it('should invoke genereUUID function with window.crypto', () => {
         expect(generateUUIDStub.calledOnce).to.be.true;
-        expect(generateUUIDStub.calledWith(crypto)).to.be.true;
+        expect(generateUUIDStub.calledWith(cryptoMock)).to.be.true;
     });
 
     it('should create PlaceholderSerializer instance with UUID returned by generateUUID', () => {
